@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<update xmlns="http://ns.adobe.com/air/framework/update/description/2.5">
+	<versionNumber>0.0.0</versionNumber>
+	<url>https://s3.amazonaws.com/3lbs/cms/model3dviewer/Model3DEditor.air</url>
+	<description><![CDATA[
+		This version has fixes for the following knowns issues:
+		*First issue
+		*Second issue  
+	]]></description>
+</update>

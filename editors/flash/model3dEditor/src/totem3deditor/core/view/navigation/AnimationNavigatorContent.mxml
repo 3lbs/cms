@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:NavigatorContent xmlns:fx="http://ns.adobe.com/mxml/2009"
+					xmlns:s="library://ns.adobe.com/flex/spark"
+					xmlns:mx="library://ns.adobe.com/flex/mx"
+					width="350"
+					height="100%"
+					label="reMOVE">
+	<s:layout>
+		<s:VerticalLayout paddingBottom="5"
+						  paddingLeft="5"
+						  paddingRight="5"
+						  paddingTop="5"/>
+	</s:layout>
+	<fx:Script>
+		<![CDATA[
+			import editorlibrary.editors3d.mvc.controllers.events.EditorAnimationEvent;
+
+			import mx.collections.ArrayCollection;
+
+			import spark.events.GridSelectionEvent;
+			import spark.events.IndexChangeEvent;
+			import spark.skins.spark.DefaultGridItemRenderer;
+
+			import totem3d.core.dto.AnimationParam;
+			import totem3d.enums.AnimationCategoryTypeEnum;
+
+			import totem3deditor.core.model.ProjectControllerModel;
+			import totem3deditor.core.model.vo.modelanimation.AnimationStatePresenter;
+			import totem3deditor.core.model.vo.modelanimation.ProjectAnimationsVO;
+			import totem3deditor.core.view.itemrenderer.SequenceAddedColumnItemRenderer;
+
+			[Bindable]
+			public var projectController : ProjectControllerModel;
+
+			[Bindable]
+			protected var animationCategoryCollection : ArrayCollection = new ArrayCollection( AnimationCategoryTypeEnum.animationCategoryList );
+
+			protected function animationDataList_changeHandler( event : IndexChangeEvent ) : void
+			{
+				//if ( categoryComboBox.selectedIndex == spark.components.ComboBox.CUSTOM_SELECTED_ITEM )
+				//	animationCategoryCollection.addItem ( categoryComboBox.selectedItem );
+			}
+
+			public function categoryLabelFunction( item : AnimationCategoryTypeEnum ) : String
+			{
+				return item.name;
+			}
+
+			public function addNewCategoryItem( value : String ) : AnimationCategoryTypeEnum
+			{
+				//var item : AnimationCategoryTypeEnum = new AnimationCategoryTypeEnum ( value );
+				return AnimationCategoryTypeEnum.addAnimationCategory( value );
+			}
+
+			public function handleAddToModel( event : Event ) : void
+			{
+				var selectedAnimation : AnimationStatePresenter = animationDataGrid.selectedItem as AnimationStatePresenter;
+				selectedAnimation.addedToModel = addToModelButton.selected;
+
+				var animationDataList : Vector.<AnimationParam> = new Vector.<AnimationParam>();
+				animationDataList.push( selectedAnimation.animationData );
+
+
+				if ( selectedAnimation.addedToModel )
+				{
+					dispatchEvent( new EditorAnimationEvent( EditorAnimationEvent.ADD_ANIMATION_TO_MODEL, animationDataList ));
+				}
+			}
+
+			protected function handlePlayAnimation( event : MouseEvent ) : void
+			{
+				var selectedAnimation : AnimationStatePresenter = animationDataGrid.selectedItem as AnimationStatePresenter;
+
+
+				trace( playAnimationButton.selected );
+
+				if ( playAnimationButton.selected == true )
+				{
+					if ( selectedAnimation && selectedAnimation.addedToModel )
+					{
+						dispatchEvent( new EditorAnimationEvent( EditorAnimationEvent.PLAY_ANIMATIOIN, selectedAnimation.animationData ));
+					}
+					playAnimationButton.selected = selectedAnimation.loop;
+				}
+				else
+				{
+					dispatchEvent( new EditorAnimationEvent( EditorAnimationEvent.STOP_ANIMATION ));
+				}
+
+			}
+
+			protected function animationDataGrid_selectionChangeHandler( event : GridSelectionEvent ) : void
+			{
+				var selectedAnimation : AnimationStatePresenter = animationDataGrid.selectedItem as AnimationStatePresenter;
+				var animationDataList : Vector.<AnimationParam> = new Vector.<AnimationParam>();
+				animationDataList.push( selectedAnimation.animationData );
+
+				dispatchEvent( new EditorAnimationEvent( EditorAnimationEvent.SELECT_ANIMATION, selectedAnimation.animationData ));
+			}
+
+			protected function addAllToModelButton_clickHandler( event : MouseEvent ) : void
+			{
+				var list : Array = animationDataGrid.dataProvider.toArray();
+
+				var animationDataList : Vector.<AnimationParam> = new Vector.<AnimationParam>();
+
+				var animation : AnimationStatePresenter;
+
+				for each ( animation in list )
+				{
+					if ( animation.addedToModel == false )
+					{
+						animation.addedToModel = true;
+
+						animationDataList.push( animation.animationData );
+					}
+				}
+
+
+				dispatchEvent( new EditorAnimationEvent( EditorAnimationEvent.ADD_ANIMATION_TO_MODEL, animationDataList ));
+			}
+
+			private function sequence_itemRendererFunction( item : Object, column : GridColumn ) : ClassFactory
+			{
+				if ( !item || item.addedToModel == false )
+					return new ClassFactory( DefaultGridItemRenderer );
+				else
+					return new ClassFactory( SequenceAddedColumnItemRenderer );
+			}
+
+			protected function updateRootCheckBox_changeHandler( event : Event ) : void
+			{
+				dispatchEvent( new EditorAnimationEvent( EditorAnimationEvent.UPDATE_ROOT_WITH_ANIMATION, updateRootCheckBox.selected ));
+			}
+
+			protected function animationLoopCheckbox_changeHandler( event : Event ) : void
+			{
+				dispatchEvent( new EditorAnimationEvent( EditorAnimationEvent.UPDATE_LOOP, AnimationStatePresenter( animationDataGrid.selectedItem ).animationData ));
+			}
+
+			protected function actionSpeedNumericStepper_changeHandler( event : Event ) : void
+			{
+				dispatchEvent( new EditorAnimationEvent( EditorAnimationEvent.UPDATE_ACTION_SPEED, actionSpeedNumericStepper.value ));
+			}
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<s:Label text="Animation Data"/>
+	<mx:HRule width="100%"/>
+	<s:CheckBox id="updateRootCheckBox"
+				label="Update root with animation"
+				selected="@{ this.projectController.currentProject.updateRoot }"
+				change="updateRootCheckBox_changeHandler(event)"/>
+	<s:HGroup width="100%"
+			  height="30"
+			  verticalAlign="middle">
+		<s:Label text="Action Speed"/>
+		<s:NumericStepper id="actionSpeedNumericStepper"
+						  value="@{ this.projectController.currentProject.actionSpeed }"
+						  change="actionSpeedNumericStepper_changeHandler(event)"
+						  maximum="10"
+						  minimum="0"
+						  stepSize="1"/>
+	</s:HGroup>
+	<mx:HRule width="100%"/>
+	<s:HGroup width="100%"
+			  height="30"
+			  verticalAlign="middle">
+		<!--<s:Button id="addAllToModelButton"
+				  click="addAllToModelButton_clickHandler(event)"
+				  label="Add all to model"/>-->
+		<s:Spacer width="50"
+				  height="10"/>
+		<s:CheckBox label="Show ID"
+					selected="true"
+					change="{idField.visible = !idField.visible}"/>
+	</s:HGroup>
+	<s:DataGrid id="animationDataGrid"
+				width="100%"
+				requestedMinRowCount="2"
+				requestedMaxRowCount="10"
+				selectionChange="animationDataGrid_selectionChangeHandler(event)"
+				dataProvider="{ProjectAnimationsVO.animationFileList}">
+
+		<s:columns>
+			<s:ArrayList>
+				<s:GridColumn width="23"
+							  resizable="false">
+					<s:itemRenderer>
+						<fx:Component>
+							<s:GridItemRenderer>
+								<s:Rect top="0"
+										bottom="0"
+										right="0"
+										left="0">
+									<s:fill>
+										<s:SolidColor color="{ ( data.addedToModel == true ) ? 0xCCFFCC : 0xFFFFFF }"/>
+									</s:fill>
+								</s:Rect>
+								<s:CheckBox selected="@{data.addedToModel}"
+											change="{outerDocument.handleAddToModel(event)}"
+											horizontalCenter="0"/>
+							</s:GridItemRenderer>
+						</fx:Component>
+					</s:itemRenderer>
+				</s:GridColumn>
+				<s:GridColumn id="idField"
+							  dataField="id"
+							  headerText="ID"
+							  itemRendererFunction="sequence_itemRendererFunction">
+				</s:GridColumn>
+				<s:GridColumn dataField="name"
+							  headerText="Name"
+							  itemRendererFunction="sequence_itemRendererFunction">
+				</s:GridColumn>
+				<s:GridColumn dataField="type.name"
+							  headerText="Category">
+				</s:GridColumn>
+			</s:ArrayList>
+		</s:columns>
+		<!--<s:typicalItem>
+			<fx:Object dataField1="Sample Data"
+					   dataField2="Sample Data"
+					   dataField3="Sample Data">
+			</fx:Object>
+		</s:typicalItem>-->
+	</s:DataGrid>
+	<s:Spacer width="10"
+			  height="10"/>
+	<mx:HRule width="100%"/>
+	<s:Label text="Selected Animation"/>
+	<s:HGroup width="100%"
+			  height="26"
+			  verticalAlign="middle">
+		<s:Label text="ID"/>
+		<s:TextInput width="50%"
+					 text="@{AnimationStatePresenter( animationDataGrid.selectedItem).id}"/>
+		<s:CheckBox id="addToModelButton"
+					label="Add to model"
+					selected="{AnimationStatePresenter( animationDataGrid.selectedItem).addedToModel }"
+					change="{handleAddToModel(event)}"/>
+	</s:HGroup>
+	<s:ToggleButton id="playAnimationButton"
+					label="{playAnimationButton.selected ? 'Stop' : 'Play' }"
+					click="handlePlayAnimation(event)"/>
+
+	<s:HGroup width="100%"
+			  height="26"
+			  verticalAlign="middle">
+		<s:Label text="Name"/>
+		<s:TextInput width="50%"
+					 text="@{AnimationStatePresenter( animationDataGrid.selectedItem).name}"/>
+	</s:HGroup>
+
+
+	<s:HGroup width="100%"
+			  height="30"
+			  verticalAlign="middle">
+		<s:Label text=" Category"/>
+		<s:ComboBox id="categoryComboBox"
+					labelField="name"
+					labelToItemFunction="addNewCategoryItem"
+					prompt="Select a category"
+					dataProvider="{ animationCategoryCollection }"
+					selectedItem="@{ AnimationStatePresenter( animationDataGrid.selectedItem ).type }"
+					change="animationDataList_changeHandler(event)"/>
+	</s:HGroup>
+	<s:CheckBox id="animationLoopCheckbox"
+				label="Loop"
+				change="animationLoopCheckbox_changeHandler(event)"
+				selected="@{AnimationStatePresenter( animationDataGrid.selectedItem).loop}"/>
+	<mx:HRule width="100%"/>
+	<s:Label width="32"
+			 text="URL"/>
+	<s:TextInput width="100%"
+				 editable="false"
+				 text="@{AnimationStatePresenter( animationDataGrid.selectedItem).url}"/>
+	<mx:HRule width="100%"/>
+</s:NavigatorContent>

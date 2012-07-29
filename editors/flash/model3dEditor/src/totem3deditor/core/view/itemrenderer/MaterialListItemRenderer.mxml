@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+		   xmlns:s="library://ns.adobe.com/flex/spark"
+		   xmlns:mx="library://ns.adobe.com/flex/mx"
+		   width="140"
+		   height="155">
+	<fx:Script>
+		<![CDATA[
+			import editorlibrary.editors3d.mvc.presenters.MaterialPresenter;
+		]]>
+	</fx:Script>
+	<s:VGroup x="0"
+			  y="0"
+			  width="100%"
+			  height="100%"
+			  horizontalAlign="center"
+			  paddingTop="5">
+		<s:Image width="128"
+					 height="128"
+					 source="{MaterialPresenter( data ).icon}"/>
+		<s:Label x="18"
+				 width="104"
+				 text="{MaterialPresenter( data ).label}"
+				 textAlign="center"/>
+	</s:VGroup>
+
+</s:ItemRenderer>

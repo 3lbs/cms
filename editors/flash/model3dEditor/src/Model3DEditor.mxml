@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009"
+					   xmlns:s="library://ns.adobe.com/flex/spark"
+					   xmlns:mx="library://ns.adobe.com/flex/mx"
+					   xmlns:ns1="*"
+					   xmlns:menu="totem3deditor.core.view.menu.*"
+					   xmlns:navigation="totem3deditor.core.view.navigation.*"
+					   xmlns:ui="totem3deditor.core.view.ui.*"
+					   xmlns:core="totem3deditor.core.*"
+					   xmlns:mvcs="robotlegs.bender.bundles.mvcs.*"
+					   xmlns:mxml="robotlegs.bender.mxml.*"
+					   xmlns:core2="totem3d.core.*"
+					   xmlns:totem3d="totem3d.*"
+					   xmlns:core4="editorlibrary.core.*"
+					   xmlns:containers="totem3deditor.core.view.containers.*"
+					   xmlns:totembundle="totem.patterns.mvc.totembundle.*"
+					   xmlns:editorlibrary1="editorlibrary.*"
+					   xmlns:view1="editorlibrary.editors3d.mvc.view.*"
+					   width="1150"
+					   height="600"
+					   minWidth="1150"
+					   minHeight="600"
+					   applicationComplete="appComplete()"
+					   backgroundAlpha="0"
+					   creationPolicy="all"
+					   frameRate="60">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+		<!--<core:Totem3dEditorContext contextView="{this}"/> -->
+
+		<mxml:ContextBuilderTag>
+			<mvcs:MVCSBundle/>
+			<totembundle:TotemBundle/>
+			<editorlibrary1:EditorFrameworkAppConfig/>
+			<core:Model3dEditorConfig/>
+		</mxml:ContextBuilderTag>
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import editorlibrary.air.controllers.events.ApplicationEvent;
+			
+			import totem3deditor.core.view.menu.ApplicationNativeMenu;
+
+			public function appComplete() : void
+			{
+				stage.nativeWindow.visible = true;
+				
+				var item1 : NativeMenuItem;
+				
+				if ( NativeApplication.supportsMenu )
+				{
+					var nativeMenu : NativeMenu = new NativeMenu();
+					item1 = new NativeMenuItem( "File" );
+					var item2 : NativeMenuItem = new NativeMenuItem( "Window" );
+					nativeMenu.addItem( item1 );
+					nativeMenu.addItem( item2 );
+
+					var menuItem : NativeMenuItem = new NativeMenuItem( "My App Menu" );
+					menuItem.submenu = nativeMenu;
+					NativeApplication.nativeApplication.menu.addItem( menuItem );
+				}
+				else if ( NativeWindow.supportsMenu )
+				{
+					var menu : ApplicationNativeMenu = new ApplicationNativeMenu();R
+					nativeWindow.menu = menu;
+
+					menu.init( this.stage );
+				}
+
+				dispatchEvent( new ApplicationEvent( ApplicationEvent.APPLICATION_STARTUP ));
+			}
+			
+			
+		]]>
+	</fx:Script>
+
+	<view1:MaterialViewContainer id="materialViewComponent"
+								 x="-200"
+								 y="-200"R
+								 width="128"
+								 height="128"
+								 backgroundAlpha="0"/>
+	<s:VGroup x="0"
+			  y="0"
+			  width="100%"
+			  height="100%"
+			  paddingBottom="5"
+			  paddingLeft="5"
+			  paddingRight="5"
+			  paddingTop="5">
+		<s:HGroup width="100%"
+				  height="100%"
+				  paddingLeft="10"
+				  paddingRight="10">
+			<mx:TabNavigator id="mainTabNavigator"
+							 width="350"
+							 height="100%"
+							 creationPolicy="all"
+							 paddingLeft="5"
+							 paddingRight="5">
+				<navigation:ProjectNavigatorContent id="projectContentView"/>
+				<navigation:ModelNavigatorContent id="modelContentView"
+												  width="100%"
+												  height="100%"/>
+
+				<navigation:TextureNavigatorContent id="textureContentView"/>
+				<navigation:AnimationNavigatorContent id="animationContentView"
+													  label="Animation"/>
+				<navigation:SceneNavigatorContent/>
+				<navigation:OptionNavigatorContent id="optionContentView"
+												   label="Option"/>
+			</mx:TabNavigator>
+			<s:VGroup width="100%"
+					  height="100%">
+				<ui:Panel3DContent id="background3d"
+								   backgroundAlpha="0">
+				</ui:Panel3DContent>
+				<ui:Control3DContent>
+				</ui:Control3DContent>
+			</s:VGroup>
+		</s:HGroup>
+	</s:VGroup>
+
+</s:WindowedApplication>

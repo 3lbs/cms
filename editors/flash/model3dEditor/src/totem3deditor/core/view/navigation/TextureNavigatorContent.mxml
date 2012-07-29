@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:NavigatorContent xmlns:fx="http://ns.adobe.com/mxml/2009"
+					xmlns:s="library://ns.adobe.com/flex/spark"
+					xmlns:mx="library://ns.adobe.com/flex/mx"
+					xmlns:yahoo="http://www.yahoo.com/astra/2006/mxml"
+					xmlns:components="totem3deditor.core.view.components.*"
+					width="350"
+					height="100%"
+					label="Textures">
+	<s:layout>
+		<s:VerticalLayout paddingBottom="5"
+						  paddingLeft="5"
+						  paddingRight="5"
+						  paddingTop="5"/>
+	</s:layout>
+	<fx:Script>
+		<![CDATA[
+			import editorlibrary.editors3d.mvc.controllers.events.EditorTextureEvent;
+			import editorlibrary.editors3d.mvc.presenters.MaterialPresenter;
+			import editorlibrary.flex.windows.TextureDisplayWindow;
+			
+			import mx.collections.ArrayCollection;
+			import mx.events.CloseEvent;
+			import mx.events.ListEvent;
+			import mx.managers.PopUpManager;
+			
+			import totem3d.enums.MaterialTypeEnum;
+			
+			import totem3deditor.core.model.ProjectControllerModel;
+			import totem3deditor.core.model.vo.modeltexture.ProjectMaterialsModel;
+
+			private var _selectedMaterial : MaterialPresenter;
+
+			private var windowDisplay : TextureDisplayWindow;
+			
+			[Bindable]
+			public var projectController:ProjectControllerModel;
+
+			[Bindable]
+			public var materialList : ArrayCollection = ProjectMaterialsModel.materialList;
+
+			[Bindable]
+			public function get selectedMaterial() : MaterialPresenter
+			{
+				return _selectedMaterial;
+			}
+
+			public function set selectedMaterial( value : MaterialPresenter ) : void
+			{
+				if ( _selectedMaterial )
+				{
+					_selectedMaterial.removeEventListener( EditorTextureEvent.UPDATE_TEXTURE, handleMaterialUpdate );
+				}
+
+				_selectedMaterial = value;
+
+				if ( _selectedMaterial )
+				{
+					_selectedMaterial.addEventListener( EditorTextureEvent.UPDATE_TEXTURE, handleMaterialUpdate, false, 0, true );
+				}
+			}
+
+			protected function handleMaterialSelected( event : ListEvent ) : void
+			{
+				selectedMaterial = event.itemRenderer.data as MaterialPresenter;
+			}
+
+			protected function handleRemoveWindow( event : CloseEvent ) : void
+			{
+				PopUpManager.removePopUp( windowDisplay );
+				windowDisplay = null;
+			}
+
+			protected function viewTexture( url : String ) : void
+			{
+				if ( url && url != "" && url != "none" )
+				{
+					windowDisplay = PopUpManager.createPopUp( DisplayObject( this.parentApplication ), TextureDisplayWindow, true ) as TextureDisplayWindow;
+
+					windowDisplay.addEventListener( Event.CLOSE, handleRemoveWindow, false, 0, true );
+
+					PopUpManager.centerPopUp( windowDisplay );
+
+					windowDisplay.loadImage( url );
+				}
+			}
+			
+			private function handleMaterialUpdate( event : EditorTextureEvent ) : void
+			{
+				dispatchEvent( event.clone());
+			}
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+
+	<s:HGroup width="100%"
+			  height="25">
+		<s:Button id="addTextureButton"
+				  label="Add Material"/>
+		<s:Spacer width="100"
+				  height="10"/>
+		<s:Button id="deleteTextureButton"
+				  label="Delete Material"/>
+	</s:HGroup>
+
+	<s:List id="materialListViewer"
+			width="100%"
+			height="175"
+			color="0x323232"
+			verticalScrollPolicy="off"
+			selectedItem="{selectedMaterial}"
+			itemRenderer="totem3deditor.core.view.itemrenderer.MaterialListItemRenderer"
+			dataProvider="{materialList}">
+		<s:layout>
+			<s:HorizontalLayout requestedColumnCount="10"/>
+		</s:layout>
+	</s:List>
+	<s:BorderContainer width="100%"
+					   height="100%">
+		<s:layout>
+			<s:VerticalLayout/>
+		</s:layout>
+		<s:Scroller width="100%"
+					height="100%"
+					horizontalScrollPolicy="off">
+			<s:VGroup width="100%"
+					  height="100%"
+					  paddingBottom="5"
+					  paddingLeft="5"
+					  paddingRight="5"
+					  paddingTop="5">
+				<s:CheckBox id="useModelCheckBox"
+							selected="{selectedMaterial.id == projectController.currentProject.material }"
+							label="Use material on model"/>
+				<s:HGroup width="100%"
+						  height="118">
+					<s:VGroup width="50%"
+							  height="100%">
+						<s:Label text="ID"/>
+						<s:TextInput width="100%"
+									 text="{selectedMaterial.id}"/>
+						<s:Label text="Name"/>
+						<s:TextInput width="100%"
+									 text="@{selectedMaterial.name}"/>
+					</s:VGroup>
+					<s:VGroup width="50%"
+							  height="100%">
+						<s:Label text="Type Material"/>
+						<s:DropDownList id="materialTypePulldown"
+										labelField="value"
+										dataProvider="{new ArrayCollection( MaterialTypeEnum.list )}"
+										selectedIndex="0"
+										selectedItem="@{selectedMaterial.materialType}"
+										width="157">
+						</s:DropDownList>
+						<s:CheckBox id="useLightCheckBox"
+									width="104"
+									selected="@{selectedMaterial.useLight}"
+									label="Use Light"/>
+						<s:CheckBox id="twoSidedCheckBox"
+									label="Two-sided"
+									selected="@{selectedMaterial.twoSided}"/>
+						<s:CheckBox label="Repeat Maps"
+									selected="@{selectedMaterial.repeatTexture}"/>
+					</s:VGroup>
+				</s:HGroup>
+				<mx:HRule width="100%"/>
+				<s:HGroup width="100%"
+						  height="27"
+						  verticalAlign="middle">
+					<s:Label text="Diffuse Map"/>
+					<s:DropDownList id="difuseMapDropDown"
+									width="182"
+									labelField="name"
+									selectedIndex="0"
+									selectedItem="@{selectedMaterial.diffuseTexture}"
+									dataProvider="{ ProjectMaterialsModel.textureList }">
+					</s:DropDownList>
+					<s:Button id="viewDifuseMapButton"
+							  click="viewTexture(difuseMapDropDown.selectedItem.url)"
+							  width="30"
+							  label="..."/>
+				</s:HGroup>
+				<s:HGroup width="100%"
+						  height="31"
+						  verticalAlign="middle">
+					<s:CheckBox id="alphaBlendingCheckBox"
+								selected="@{selectedMaterial.alphaBlending}"
+								label="Alpha Blending"/>
+					<s:Spacer width="20"
+							  height="10"/>
+					<s:Label text="Alpha Threshold"/>
+					<s:NumericStepper id="alphaThresholdNumericSpinner"
+									  value="@{selectedMaterial.alphaThreshold}"/>
+				</s:HGroup>
+				<mx:HRule width="100%"/>
+
+				<s:HGroup width="100%"
+						  height="27"
+						  verticalAlign="middle">
+					<s:Label text="Ambient"/>
+					<s:NumericStepper id="ambienStrengthNumericStepper"
+									  minimum="0"
+									  maximum="1"
+									  stepSize=".05"
+									  value="@{selectedMaterial.ambientStrength}"/>
+					<s:Label y="7"
+							 height="14"
+							 text="Ambient Color"/>
+					<mx:ColorPicker id="ambientcolorPiker"
+									selectedColor="@{selectedMaterial.ambientColor}"/>
+				</s:HGroup>
+				<mx:HRule width="100%"/>
+				<s:HGroup width="100%"
+						  height="27"
+						  verticalAlign="middle">
+					<s:Label text="Specular"/>
+					<s:NumericStepper minimum="0"
+									  maximum="255"
+									  value="@{selectedMaterial.specularStrength}"/>
+					<s:Label height="14"
+							 text="Specular Color"/>
+					<mx:ColorPicker id="specularColorPicker"
+									selectedColor="@{selectedMaterial.specularColor}"/>
+				</s:HGroup>
+				<s:HGroup width="100%"
+						  height="27"
+						  verticalAlign="middle">
+					<s:Label text="Specular Map"/>
+					<s:DropDownList id="specularMapDropDown"
+									width="182"
+									labelField="name"
+									selectedIndex="0"
+									selectedItem="@{selectedMaterial.specularTexture}"
+									dataProvider="{ ProjectMaterialsModel.textureList }">
+					</s:DropDownList>
+					<s:Button id="viewSpecularMapButton"
+							  width="30"
+							  click="viewTexture(specularMapDropDown.selectedItem.url)"
+							  label="..."/>
+				</s:HGroup>
+				<mx:HRule width="100%"/>
+				<s:HGroup width="100%"
+						  height="27"
+						  verticalAlign="middle">
+					<s:Label text="Gloss"/>
+					<s:NumericStepper id="glossStrengthNumberStepper"
+									  minimum="0"
+									  maximum="255"
+									  value="@{selectedMaterial.glossStrength}"/>
+				</s:HGroup>
+				<mx:HRule width="100%"/>
+				<s:HGroup width="100%"
+						  height="27"
+						  verticalAlign="middle">
+					<s:Label text="Normal Map"/>
+					<s:DropDownList width="182"
+									id="normalMapDropDown"
+									labelField="name"
+									selectedIndex="0"
+									selectedItem="@{selectedMaterial.normalTexture}"
+									dataProvider="{ ProjectMaterialsModel.textureList }">
+					</s:DropDownList>
+					<s:Button id="viewNormalMapButton"
+							  width="30"
+							  click="viewTexture(normalMapDropDown.selectedItem.url)"
+							  label="..."/>
+				</s:HGroup>
+			</s:VGroup>
+		</s:Scroller>
+	</s:BorderContainer>
+
+</s:NavigatorContent>

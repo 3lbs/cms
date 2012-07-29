@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<flexLibProperties includeAllClasses="true" useMultiPlatformConfig="false" version="3">
+  <includeClasses>
+    <classEntry path="editorlibrary.EditorFrameworkAppConfig"/>
+    <classEntry path="editorlibrary.EditorProperties"/>
+    <classEntry path="editorlibrary.air.AirAppUpdater"/>
+    <classEntry path="editorlibrary.air.controllers.commands.ApplicationInitCompleteCommand"/>
+    <classEntry path="editorlibrary.air.controllers.commands.ExitApplicationCommand"/>
+    <classEntry path="editorlibrary.air.controllers.commands.PrefsLoadCommand"/>
+    <classEntry path="editorlibrary.air.controllers.commands.SavePrefCommand"/>
+    <classEntry path="editorlibrary.air.controllers.events.AlertEvent"/>
+    <classEntry path="editorlibrary.air.controllers.events.ApplicationEvent"/>
+    <classEntry path="editorlibrary.air.controllers.events.FileSystemEvent"/>
+    <classEntry path="editorlibrary.air.model.ApplicationModel"/>
+    <classEntry path="editorlibrary.air.model.ApplicationPreferenceModel"/>
+    <classEntry path="editorlibrary.air.services.DocumentService"/>
+    <classEntry path="editorlibrary.air.services.FileSystemService"/>
+    <classEntry path="editorlibrary.air.view.AirApplicationMediator"/>
+    <classEntry path="editorlibrary.air.view.ApplicationBaseView"/>
+    <classEntry path="editorlibrary.air.view.AwayStatsMediator"/>
+    <classEntry path="editorlibrary.core.filesystem.FileMoniter"/>
+    <classEntry path="editorlibrary.core.loader.ImageLoader"/>
+    <classEntry path="editorlibrary.core.mvc.controllers.bootstrap.BootstrapManagers"/>
+    <classEntry path="editorlibrary.core.mvc.controllers.commands.App3DPrefsLoadedCommand"/>
+    <classEntry path="editorlibrary.core.mvc.view.ApplicationMediator"/>
+    <classEntry path="editorlibrary.core.project.IProject"/>
+    <classEntry path="editorlibrary.core.project.ProjectBase"/>
+    <classEntry path="editorlibrary.core.project.ProjectEvent"/>
+    <classEntry path="editorlibrary.editors3d.Editor3dProperties"/>
+    <classEntry path="editorlibrary.editors3d.containers.IEditorView3d"/>
+    <classEntry path="editorlibrary.editors3d.containers.MainCamera3d"/>
+    <classEntry path="editorlibrary.editors3d.containers.MainView3D"/>
+    <classEntry path="editorlibrary.editors3d.mvc.controllers.bootstrap.BootstrapView3dCommands"/>
+    <classEntry path="editorlibrary.editors3d.mvc.controllers.bootstrap.BootstrapView3dMediators"/>
+    <classEntry path="editorlibrary.editors3d.mvc.controllers.events.EditorAnimationEvent"/>
+    <classEntry path="editorlibrary.editors3d.mvc.controllers.events.EditorLightEvent"/>
+    <classEntry path="editorlibrary.editors3d.mvc.controllers.events.EditorModelEvent"/>
+    <classEntry path="editorlibrary.editors3d.mvc.controllers.events.EditorSceneEvent"/>
+    <classEntry path="editorlibrary.editors3d.mvc.controllers.events.EditorTextureEvent"/>
+    <classEntry path="editorlibrary.editors3d.mvc.model.SceneLightsModel"/>
+    <classEntry path="editorlibrary.editors3d.mvc.view.Camera3DInputMediator"/>
+    <classEntry path="editorlibrary.editors3d.mvc.view.Camera3DMediator"/>
+    <classEntry path="editorlibrary.editors3d.mvc.view.MaterialViewContainer"/>
+    <classEntry path="editorlibrary.editors3d.mvc.view.View3DMediator"/>
+    <classEntry path="editorlibrary.editors3d.mvc.view.itemrenderer.LightListItemRenderer"/>
+    <classEntry path="editorlibrary.flex.components.Vector3dComponent"/>
+    <classEntry path="editorlibrary.flex.windows.NewProjectWindow"/>
+    <classEntry path="editorlibrary.flex.windows.TextureDisplayWindow"/>
+    <classEntry path="editorlibrary.utils.FileUtil"/>
+    <classEntry path="editorlibrary.air.fileformats.BitmapDataToJPEGWithBrowse"/>
+    <classEntry path="editorlibrary.air.fileformats.IFileFormat"/>
+    <classEntry path="editorlibrary.air.fileformats.BitmapDataToPNGWithBrowser"/>
+    <classEntry path="editorlibrary.editors3d.TextureMapEnum"/>
+    <classEntry path="editorlibrary.core.filesystem.BitmapDataFileMonitor"/>
+    <classEntry path="editorlibrary.editors3d.mvc.view.component.MainView3D"/>
+    <classEntry path="editorlibrary.utils.Folder"/>
+    <classEntry path="editorlibrary.flex.components.PositionComponent"/>
+    <classEntry path="editorlibrary.editors3d.containers.SphereBoundsWireframe"/>
+    <classEntry path="editorlibrary.editors3d.mvc.controllers.commands.lightcommands.LoadLightCommand"/>
+    <classEntry path="editorlibrary.editors3d.mvc.controllers.commands.lightcommands.AddLightsToViewCommand"/>
+    <classEntry path="editorlibrary.editors3d.mvc.controllers.commands.lightcommands.SaveLightsCommand"/>
+    <classEntry path="editorlibrary.editors3d.mvc.controllers.commands.lightcommands.SaveLightsToPrefCommand"/>
+    <classEntry path="editorlibrary.editors3d.mvc.controllers.commands.lightcommands.CreateNewLightCommand"/>
+    <classEntry path="editorlibrary.editors3d.mvc.controllers.commands.lightcommands.DeleteSceneLightCommand"/>
+    <classEntry path="editorlibrary.editors3d.mvc.controllers.commands.TransformCameraCommand"/>
+    <classEntry path="editorlibrary.air.controllers.commands.ApplicationUpdateCommand"/>
+  </includeClasses>
+  <includeResources/>
+  <namespaceManifests/>
+</flexLibProperties>

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+			   xmlns:s="library://ns.adobe.com/flex/spark"
+			   xmlns:mx="library://ns.adobe.com/flex/mx"
+			   width="400"
+			   height="260"
+			   title="New Project">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import editorlibrary.air.controllers.events.FileSystemEvent;
+			import editorlibrary.air.services.FileSystemService;
+			
+			import flash.filesystem.File;
+			
+			public var fileSystemService : FileSystemService;
+			
+			[Bindable]
+			public var projectName : String;
+			
+			[Bindable]
+			public var projectID : String;
+			
+			[Bindable]
+			public var projectURL : String;
+			
+			[Bindable]
+			public var projectFile : File;
+			
+			protected function handleBrowseButton( event : MouseEvent ) : void
+			{
+				fileSystemService.browserToSelectFolder ();
+				
+				fileSystemService.addEventListener ( FileSystemEvent.FILE_CANCELED, folderSelectCancel, false, 0, true );
+				fileSystemService.addEventListener ( FileSystemEvent.FILE_SELECTED, handleFolderSelected, false, 0, true );
+			}
+			
+			private function folderSelectCancel( eve : FileSystemEvent ) : void
+			{
+				dispatchEvent ( new Event ( Event.CLOSE ) );
+			}
+			
+			private function handleFolderSelected( eve : FileSystemEvent ) : void
+			{
+				// might have to validate selection
+				projectFile = eve.file.clone ();
+				projectURL = projectFile.nativePath;
+			}
+			
+			protected function handleCancelButton( event : MouseEvent ) : void
+			{
+				dispatchEvent ( new Event ( Event.CLOSE ) );
+			}
+			
+			protected function handleOkButton( event : MouseEvent ) : void
+			{
+				dispatchEvent ( new Event ( Event.SELECT ) );
+			}
+		]]>
+	</fx:Script>
+	<s:Button id="okButton"
+			  x="225"
+			  y="192"
+			  width="52"
+			  label="Ok"
+			  click="handleOkButton(event)"
+			  enabled="{ folderURLtextField.text != '' &amp;&amp; projectNameTextField.text != '' }"/>
+	<s:Button id="cancelButton"
+			  x="305"
+			  y="192"
+			  label="Cancel"
+			  click="handleCancelButton(event)"/>
+	<s:Label x="10"
+			 y="104"
+			 width="335"
+			 text="Select a folder where you want to create a new model project"/>
+	<s:TextInput id="folderURLtextField"
+				 x="10"
+				 y="120"
+				 editable="false"
+				 text="{projectURL}"
+				 width="378"/>
+	<s:Button id="browserButton"
+			  x="10"
+			  y="150"
+			  label="Browse"
+			  click="handleBrowseButton(event)"/>
+	<s:TextInput id="projectNameTextField"
+				 x="10"
+				 y="71"
+				 width="276"
+				 text="@{projectName}"/>
+	<s:Label x="10"
+			 y="56"
+			 width="100%"
+			 text="Project Name ( Folder and project name )"/>
+	<s:Label x="10"
+			 y="10"
+			 width="100%"
+			 text="Project Id (Designer, CMS and engineers use this value)"/>
+	<s:TextInput id="projectIdTextField"
+				 x="10"
+				 y="25"
+				 width="276"
+				 text="@{projectID}"/>
+</s:TitleWindow>

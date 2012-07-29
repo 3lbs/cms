@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:s="library://ns.adobe.com/flex/spark"
+				xmlns:mx="library://ns.adobe.com/flex/mx"
+				width="100%"
+				height="230"
+				autoDrawBackground="true"
+				creationComplete="itemrenderer1_creationCompleteHandler(event)"
+				xmlns:components="totem3deditor.core.view.components.*"
+				xmlns:modules="cms.framework.flex.modules.*"
+				xmlns:components1="editorlibrary.flex.components.*">
+	<s:layout>
+		<s:VerticalLayout paddingBottom="5"
+						  paddingLeft="5"
+						  paddingRight="5"
+						  paddingTop="5"/>
+	</s:layout>
+	<fx:Script>
+		<![CDATA[
+			import editorlibrary.editors3d.mvc.controllers.events.EditorLightEvent;
+
+			import mx.collections.ArrayCollection;
+			import mx.events.ColorPickerEvent;
+			import mx.events.FlexEvent;
+
+			import org.swiftsuspenders.utils.SsInternal;
+
+			import spark.events.IndexChangeEvent;
+
+			import totem3d.params.lights.LightEnum;
+			import totem3d.params.lights.LightPresenter;
+
+			private static const STATE_POINT : String = "point";
+
+			private static const STATE_DIRECTIONAL : String = "directional";
+
+			[Bindable]
+			override public function get data() : Object
+			{
+				return super.data;
+			}
+
+			override public function set data( value : Object ) : void
+			{
+				super.data = value;
+			}
+
+			protected function colorpicker1_changeHandler( event : ColorPickerEvent ) : void
+			{
+				LightPresenter( data ).color = event.color;
+			}
+
+			protected function itemrenderer1_creationCompleteHandler( event : FlexEvent ) : void
+			{
+				currentState = ( LightPresenter( data ).getLightEnum() == LightEnum.DIRECTION_LIGHT ) ? STATE_DIRECTIONAL : STATE_POINT;
+
+				vectorPositionComponent.vector3d = LightPresenter( data ).position;
+				vectorPositionComponent.addEventListener( Event.CHANGE, handlePositionChange );
+
+				/* if ( currentState == STATE_DIRECTIONAL )
+				{
+					lookAtPositionComponent.vector3d = LightPresenter( data ).lookAtPosition;
+					lookAtPositionComponent.addEventListener( Event.CHANGE, handleLookAtChange );
+				} */
+			}
+
+			protected function handlePositionChange( event : Event ) : void
+			{
+				LightPresenter( data ).position = vectorPositionComponent.vector3d;
+			}
+
+			protected function handleLookAtChange( event : Event ) : void
+			{
+				LightPresenter( data ).lookAtPosition = lookAtPositionComponent.vector3d;
+			}
+
+			protected function lightTypePulldown_changeHandler( event : IndexChangeEvent ) : void
+			{
+				currentState = ( lightTypePulldown.selectedItem == LightEnum.POINT_LIGHT ) ? STATE_POINT : STATE_DIRECTIONAL;
+
+				LightPresenter( data ).setLightEnum( lightTypePulldown.selectedItem );
+
+				dispatchEvent( new EditorLightEvent( EditorLightEvent.CHANGE_LIGHT_TYPE, data, true ));
+			}
+			
+			protected function ambientColorPicker_changeHandler(event:ColorPickerEvent):void
+			{
+				LightPresenter( data ).ambientColor = event.color;
+			}
+			
+		]]>
+	</fx:Script>
+	<s:states>
+		<s:State name="point"/>
+		<s:State name="directional"/>
+	</s:states>
+
+	<s:HGroup width="100%"
+			  height="24"
+			  verticalAlign="middle">
+		<s:DropDownList id="lightTypePulldown"
+						width="189"
+						change="lightTypePulldown_changeHandler(event)"
+						dataProvider="{ new ArrayCollection( LightEnum.list )}"
+						labelField="type"
+						selectedItem="{LightPresenter( data ).getLightEnum()}">
+		</s:DropDownList>
+		<s:CheckBox label="On"
+					selected="@{ LightPresenter( data ).isLightOn }"/>
+	</s:HGroup>
+	<mx:HRule width="100%"/>
+	<s:HGroup width="100%"
+			  height="31"
+			  verticalAlign="middle">
+		<!--<controls:DropDownColorPicker id="lightColorPicker"
+								pickerRenderer="com.yahoo.astra.mx.controls.colorPickerClasses.AdvancedColorPickerDropDown"
+								selectedColor="{ LightVO( data ).color}"
+								change="colorpicker1_changeHandler(event)"/>-->
+		<mx:ColorPicker selectedColor="{ LightPresenter( data ).color}"
+						change="colorpicker1_changeHandler(event)"/>
+		<s:Label text="Color"/>
+	</s:HGroup>
+	<mx:HRule width="100%"/>
+	<s:Label text="Position"/>
+	<components1:Vector3dComponent id="vectorPositionComponent"
+								   vector3d="@{ LightPresenter( data ).position }"
+								   width="100%"
+								   height="26"
+								   layout="horizontal">
+
+	</components1:Vector3dComponent>
+	<s:Label includeIn="directional"
+			 text="Look at"/>
+	<components1:Vector3dComponent id="lookAtPositionComponent"
+								   vector3d="@{ LightPresenter( data ).lookAtPosition }"
+								   includeIn="directional"
+								   width="100%"
+								   height="26"
+								   layout="horizontal">
+
+	</components1:Vector3dComponent>
+	<mx:HRule width="100%"/>
+	<s:HGroup includeIn="point"
+			  width="100%"
+			  height="37"
+			  verticalAlign="middle">
+		<s:Label text="Radius"/>
+		<s:NumericStepper id="lightRadiusNumeric"
+						  minimum="0"
+						  maximum="10000"
+						  value="@{LightPresenter( data ).radius}"/>
+		<s:Label text="Fall Off"/>
+		<s:NumericStepper id="lightFalloffNumberic"
+						  minimum="10"
+						  maximum="10000"
+						  value="@{LightPresenter( data ).falloff}"/>
+	</s:HGroup>
+	<s:HGroup includeIn="directional"
+			  width="100%"
+			  height="26"
+			  verticalAlign="middle">
+		<s:Label text="Ambient Strength"/>
+		<s:NumericStepper id="ambientStrengthNumberSpinner" width="54" maximum="1" minimum="0"
+						  stepSize=".1" value="@{LightPresenter( data ).ambientStrength}"/>
+		<s:Spacer width="100%"
+				  height="10"/>
+		<s:Label text="Ambient Color"/>
+		<mx:ColorPicker id="ambientColorPicker"
+						change="ambientColorPicker_changeHandler(event)"
+						color="{LightPresenter( data ).ambientColor}"/>
+	</s:HGroup>
+
+</s:ItemRenderer>

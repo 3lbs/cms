@@ -1,0 +1,543 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:heightmapeditor="worldbuilder.view.heightmapeditor.*"
+		 xmlns:mxml="http://www.yahoo.com/astra/2006/mxml"
+		 xmlns:ns1="*"
+		 width="100%"
+		 height="100%"
+		 alpha="1"
+		 creationComplete="handleWindowComplete()">
+	<s:layout>
+		<s:VerticalLayout/>
+	</s:layout>
+	<fx:Script>
+		<![CDATA[
+			import com.adobe.images.PNGEncoder;
+			import com.nocircleno.graffiti.GraffitiCanvas;
+			import com.nocircleno.graffiti.events.DrawEvent;
+			import com.nocircleno.graffiti.events.GraffitiObjectEvent;
+			import com.nocircleno.graffiti.managers.GraffitiObjectManager;
+			import com.nocircleno.graffiti.tools.BitmapTool;
+			import com.nocircleno.graffiti.tools.BrushTool;
+			import com.nocircleno.graffiti.tools.BrushType;
+			import com.nocircleno.graffiti.tools.FillBucketTool;
+			import com.nocircleno.graffiti.tools.ShapeTool;
+			import com.nocircleno.graffiti.tools.ShapeType;
+			import com.nocircleno.graffiti.tools.ToolMode;
+			
+			import flash.display.BitmapData;
+			
+			import mx.collections.ArrayCollection;
+			import mx.core.UIComponent;
+			import mx.events.ColorPickerEvent;
+			import mx.events.IndexChangedEvent;
+			import mx.events.ItemClickEvent;
+			
+			import spark.filters.ColorMatrixFilter;
+
+
+			// tools
+			private var _brush : BrushTool;
+
+			private var _eraser : BrushTool;
+
+			private var _shape : ShapeTool;
+
+			private var _fillBucketTool : FillBucketTool;
+
+			// props
+			private var _brushSize : Number = 2;
+
+			private var _strokeColor : uint = 0xFFFFFF;
+
+			private var _fillColor : uint = 0xFFFFFFF;
+
+			private var _strokeAlpha : Number = 1;
+
+			private var _fillAlpha : Number = 1;
+
+			private var _brushBlur : Number = 5;
+
+			private var _brushShapeIndex : int;
+
+			[Bindable]
+			public var graffitiCanvas : GraffitiCanvas;
+
+			private var _objectManager : GraffitiObjectManager;
+
+			private var _fileRef : FileReference;
+
+			[Bindable]
+			private var _brushShapes : ArrayCollection;
+
+			protected function handleWindowComplete() : void
+			{
+				graffitiCanvas = new GraffitiCanvas( 512, 512, 10 );
+				graffitiCanvas.x = 0;
+				graffitiCanvas.y = 0;
+				graffitiCanvas.addEventListener( MouseEvent.MOUSE_WHEEL, scrollHandler );
+				graffitiCanvas.addEventListener( DrawEvent.UPDATE, updateCanvas );
+				
+				
+				var spriteBackground : Sprite = new Sprite();
+				var container : UIComponent = new UIComponent();
+				container.addChild( spriteBackground );
+				canvasHolder.addElement( container );
+
+				spriteBackground.addChild( graffitiCanvas );
+
+				// get instance of graffiti object manager
+				_objectManager = GraffitiObjectManager.getInstance();
+
+				// add listeners for keyboard shortcuts
+				stage.addEventListener( KeyboardEvent.KEY_DOWN, keyHandler );
+				stage.addEventListener( KeyboardEvent.KEY_UP, keyHandler );
+
+				var colorArray : Array = [];
+
+				for ( var i : int = 0; i < 20; ++i )
+				{
+					colorArray.push( getBetweenColourByPercent( i / 20 ));
+				}
+				currentColorPicker.dataProvider = colorArray;
+				currentColorPicker.addEventListener( ColorPickerEvent.CHANGE, colorPickerHandler );
+
+				// create tool instances
+				_brush = new BrushTool( 10, _fillColor, _fillAlpha, _brushBlur, BrushType.ROUND );
+				_eraser = new BrushTool( 20, _fillColor, 1, _brushBlur, BrushType.ROUND, ToolMode.ERASE );
+				_shape = new ShapeTool( 0, _strokeColor, _fillColor, _strokeAlpha, _fillAlpha, ShapeType.RECTANGLE );
+				_fillBucketTool = new FillBucketTool( _fillColor, true );
+
+				_brushShapes = new ArrayCollection();
+				_brushShapes.addItem({ label: "Round", data: BrushType.ROUND });
+				_brushShapes.addItem({ label: "Square", data: BrushType.SQUARE });
+				_brushShapes.addItem({ label: "Diamond", data: BrushType.DIAMOND });
+				_brushShapes.addItem({ label: "Vertical", data: BrushType.VERTICAL_LINE });
+				_brushShapes.addItem({ label: "Horizontal", data: BrushType.HORIZONTAL_LINE });
+				_brushShapes.addItem({ label: "Forward", data: BrushType.FORWARD_LINE });
+				_brushShapes.addItem({ label: "Backward", data: BrushType.BACKWARD_LINE });
+
+				var matrix : Array = new Array();
+				matrix = matrix.concat([ 1, 0, 0, 0, 255 ]);
+				matrix = matrix.concat([ 0, 1, 0, 0, 0 ]);
+				matrix = matrix.concat([ 0, 0, 1, 0, 0 ]);
+				matrix = matrix.concat([ 0, 0, 0, 1, 0 ]);
+
+				// assign the brush tool as the default tool
+				graffitiCanvas.activeTool = _brush;
+				setSelectedBrushShape( BrushType.ROUND );
+			}
+
+			private function getBetweenColourByPercent( value : Number = 0.5 /* 0-1 */, highColor : uint = 0xFFFFFF, lowColor : uint = 0x000000 ) : uint
+			{
+				var r : uint = highColor >> 16;
+				var g : uint = highColor >> 8 & 0xFF;
+				var b : uint = highColor & 0xFF;
+
+				r += (( lowColor >> 16 ) - r ) * value;
+				g += (( lowColor >> 8 & 0xFF ) - g ) * value;
+				b += (( lowColor & 0xFF ) - b ) * value;
+
+				return ( r << 16 | g << 8 | b );
+			}
+
+			protected function setSelectedBrushShape( localType : String ) : void
+			{
+				// update the Brush object if different type
+				if ( BitmapTool( graffitiCanvas.activeTool ).type != localType )
+				{
+					BitmapTool( graffitiCanvas.activeTool ).type = localType;
+				}
+			}
+
+			protected function handleBrushShapePulldown( e : Event ) : void
+			{
+				if ( graffitiCanvas.activeTool is BrushTool )
+				{
+					// store brush shape index
+					_brushShapeIndex = brushShapePulldown.selectedIndex;
+					setSelectedBrushShape( brushShapePulldown.selectedItem.data );
+				}
+			}
+
+			private function setActiveTool( event : ItemClickEvent ) : void
+			{
+
+				// brush tool selected
+				if ( event.item.data == "brush" )
+				{
+
+					graffitiCanvas.activeTool = _brush;
+					// config and set brush tool as active tool
+					_brush.color = currentColorPicker.selectedColor;
+
+					brushBlur = _brush.blur;
+					brushSize = _brush.size;
+					fillAlpha = _brush.alpha;
+
+					_brush.type = brushShapePulldown.selectedItem.data;
+
+					brushShapePulldown.selectedItem = _brush.type;
+
+				}
+				else if ( event.item.data == "erase" )
+				{
+
+					graffitiCanvas.activeTool = _eraser;
+					// set brush shape list
+					brushShapePulldown.selectedIndex = _brushShapeIndex;
+
+					// config and set eraser tool as active tool
+					_eraser.color = 1;
+					_eraser.alpha = 1;
+
+					//_eraser.blur = _brushBlur;
+
+					brushSize = _eraser.size;
+
+					_eraser.type = brushShapePulldown.selectedItem.data;
+					// update slider
+
+					brushShapePulldown.selectedItem = _brush.type;
+
+				}
+				else if ( event.item.data == "rect" )
+				{
+					graffitiCanvas.activeTool = _shape;
+
+					_shape.fillColor = currentColorPicker.selectedColor;
+					fillAlpha = _shape.fillAlpha;
+					_shape.type = ShapeType.RECTANGLE;
+
+				}
+				else if ( event.item.data == "eliptical" )
+				{
+					graffitiCanvas.activeTool = _shape;
+					// config and set shape tool as active tool
+					_shape.fillColor = currentColorPicker.selectedColor;
+					_shape.strokeAlpha = _strokeAlpha;
+
+					fillAlpha = _shape.fillAlpha;
+					_shape.type = ShapeType.OVAL;
+
+
+				}
+				else if ( event.item.data == "fill" )
+				{
+					graffitiCanvas.activeTool = _fillBucketTool;
+					this._fillBucketTool.fillColor = currentColorPicker.selectedColor;
+						// set active tool
+				}
+
+			}
+
+			private function colorPickerHandler( event : ColorPickerEvent ) : void
+			{
+				if ( graffitiCanvas.activeTool is BrushTool )
+				{
+					_fillColor = event.color;
+					BrushTool( graffitiCanvas.activeTool ).color = _fillColor;
+				}
+				else if ( graffitiCanvas.activeTool is ShapeTool )
+				{
+					_strokeColor = 0;
+					ShapeTool( graffitiCanvas.activeTool ).strokeColor = 0;
+
+					_fillColor = event.color;
+					ShapeTool( graffitiCanvas.activeTool ).fillColor = _fillColor;
+				}
+				else if ( graffitiCanvas.activeTool is FillBucketTool )
+				{
+					FillBucketTool( graffitiCanvas.activeTool ).fillColor = event.color;
+				}
+			}
+
+			public function scrollHandler( e : MouseEvent ) : void
+			{
+				// calculate and set zoom of canvas
+				graffitiCanvas.zoom += ( e.delta / 3 ) * 1;
+
+				// sync slider to new zoom value.
+				zoomSlider.value = graffitiCanvas.zoom;
+			}
+
+			[Bindable]
+			public function get brushSize() : Number
+			{
+				return _brushSize;
+			}
+
+			public function set brushSize( value : Number ) : void
+			{
+				_brushSize = value;
+
+				if ( graffitiCanvas.activeTool == _brush || graffitiCanvas.activeTool == _eraser )
+				{
+					BrushTool( graffitiCanvas.activeTool ).size = _brushSize;
+				}
+			}
+
+			[Bindable]
+			public function get fillAlpha() : Number
+			{
+				return _fillAlpha;
+			}
+
+			public function set fillAlpha( value : Number ) : void
+			{
+				_fillAlpha = value;
+
+				if ( graffitiCanvas.activeTool is BitmapTool && graffitiCanvas.activeTool != _eraser )
+				{
+					if ( graffitiCanvas.activeTool is ShapeTool )
+					{
+						ShapeTool( graffitiCanvas.activeTool ).fillAlpha = _fillAlpha;
+					}
+					else
+					{
+						BrushTool( graffitiCanvas.activeTool ).alpha = _fillAlpha;
+					}
+				}
+			}
+
+			[Bindable]
+			public function get brushBlur() : Number
+			{
+				return _brushBlur;
+			}
+
+			public function set brushBlur( value : Number ) : void
+			{
+				_brushBlur = value;
+
+				if ( graffitiCanvas.activeTool == _brush )
+				{
+					BrushTool( graffitiCanvas.activeTool ).blur = _brushBlur;
+				}
+			}
+
+
+			private function clearCanvasHandler( e : MouseEvent ) : void
+			{
+				graffitiCanvas.clearCanvas();
+			}
+
+			private function zoomHandler( e : Event ) : void
+			{
+				// set zoom of canvas
+				graffitiCanvas.zoom = zoomSlider.value;
+			}
+
+			private function historyHandler( e : MouseEvent ) : void
+			{
+				if ( e.currentTarget == undoButton )
+				{
+					graffitiCanvas.prevHistory();
+				}
+				else if ( e.currentTarget == redoButton )
+				{
+					graffitiCanvas.nextHistory();
+				}
+			}
+
+
+			private function prevHistory() : void
+			{
+				graffitiCanvas.prevHistory();
+			}
+
+			private function nextHistory() : void
+			{
+				graffitiCanvas.nextHistory();
+			}
+
+			public function keyHandler( e : KeyboardEvent ) : void
+			{
+				if ( !_objectManager.areObjectsSelected())
+				{
+					if ( e.keyCode == Keyboard.SPACE )
+					{
+						if ( e.type == KeyboardEvent.KEY_UP )
+						{
+							graffitiCanvas.mouseDrag = false;
+						}
+						else if ( e.type == KeyboardEvent.KEY_DOWN )
+						{
+							graffitiCanvas.mouseDrag = true;
+						}
+					}
+				}
+			}
+
+			public function destroy() : void
+			{
+
+			}
+
+			[Bindable]
+			public function set terrainMap( value : BitmapData ) : void
+			{
+				if ( value )
+					graffitiCanvas.loadCanvas( value );
+			}
+
+			public function get terrainMap() : BitmapData
+			{
+				return graffitiCanvas.getCanvas();
+			}
+			
+			protected function updateCanvas(event:Event):void
+			{
+				dispatchEvent( new DrawEvent( DrawEvent.UPDATE, true ) );
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<s:HGroup x="982"
+			  y="309"
+			  width="100%"
+			  height="32"
+			  horizontalAlign="center"
+			  verticalAlign="middle">
+		<s:Button label="Clear"
+				  click="clearCanvasHandler(event)"/>
+		<s:Spacer width="10"
+				  height="10"/>
+		<mx:VRule height="80%"/>
+		<s:Spacer width="10"
+				  height="10"/>
+		<s:Button id="undoButton"
+				  label="Undo"
+				  click="prevHistory();"
+				  enabled="{(graffitiCanvas.historyPosition != 0)}"/>
+		<s:Button id="redoButton"
+				  label="Redo"
+				  click="nextHistory();"
+				  enabled="{graffitiCanvas.historyPosition != (graffitiCanvas.historyLength - 1)}"/>
+		<s:Spacer x="758"
+				  y="9"
+				  width="22"
+				  height="14"/>
+		<s:Label text="Zoom "/>
+		<s:HSlider id="zoomSlider"
+				   change="zoomHandler(event)"
+				   maximum="10"
+				   minimum="1"
+				   value="1"/>
+	</s:HGroup>
+	<mx:HRule width="100%"/>
+	<s:HGroup width="100%"
+			  height="100%">
+		<s:VGroup width="90"
+				  height="100%"
+				  horizontalAlign="center"
+				  verticalAlign="top">
+
+			<mx:ToggleButtonBar id="editToolButtonBar"
+								width="100%"
+								itemClick="setActiveTool(event)"
+								direction="vertical"
+								verticalGap="5">
+				<mx:dataProvider>
+					<fx:Object label="Brush"
+							   data="brush"/>
+					<fx:Object label="Erase"
+							   data="erase"/>
+					<fx:Object label="Fill Bucket"
+							   data="fill"/>
+					<fx:Object label="Rectangle"
+							   data="rect"/>
+					<fx:Object label="Eliptical"
+							   data="eliptical"/>
+				</mx:dataProvider>
+			</mx:ToggleButtonBar>
+			<mx:HRule width="80%"/>
+			<s:Label text="Color"/>
+			<mx:ColorPicker id="currentColorPicker"/>
+		</s:VGroup>
+		<s:VGroup width="100%"
+				  height="100%">
+			<mx:ViewStack id="viewstack1"
+						  width="100%"
+						  height="46">
+				<s:NavigatorContent width="100%"
+									height="100%"
+									label="View 1">
+					<s:layout>
+						<s:VerticalLayout horizontalAlign="center"/>
+					</s:layout>
+					<s:TileGroup x="-10"
+								 y="58"
+								 width="100%"
+								 height="46"
+								 horizontalAlign="center"
+								 horizontalGap="0"
+								 orientation="columns"
+								 requestedColumnCount="2"
+								 requestedRowCount="2"
+								 verticalAlign="middle"
+								 verticalGap="0">
+						<s:Label text="Brush size"
+								 visible="{(graffitiCanvas.activeTool is BrushTool )}"/>
+						<s:HSlider id="brushSizeSlider"
+								   x="131"
+								   width="74"
+								   maximum="80"
+								   minimum="3"
+								   visible="{(graffitiCanvas.activeTool is BrushTool )}"
+								   value="@{brushSize}"/>
+						<s:Label text="Color Alpha"
+								 visible="{!(graffitiCanvas.activeTool is FillBucketTool ) &amp;&amp; (graffitiCanvas.activeTool is BitmapTool &amp;&amp; BitmapTool( graffitiCanvas.activeTool ).mode != ToolMode.ERASE )}"/>
+						<s:HSlider id="brushAlphaSlider"
+								   x="243"
+								   width="74"
+								   visible="{!(graffitiCanvas.activeTool is FillBucketTool ) &amp;&amp; (graffitiCanvas.activeTool is BitmapTool &amp;&amp; BitmapTool( graffitiCanvas.activeTool ).mode != ToolMode.ERASE ) }"
+								   maximum="1"
+								   minimum="0"
+								   stepSize=".1"
+								   value="@{fillAlpha}"/>
+						<s:Label text="Brush Blur"
+								 visible="{(graffitiCanvas.activeTool is BrushTool ) &amp;&amp; (graffitiCanvas.activeTool is BitmapTool &amp;&amp; BitmapTool( graffitiCanvas.activeTool ).mode != ToolMode.ERASE )}"/>
+						<s:HSlider id="brushBlurSlider"
+								   x="353"
+								   width="78"
+								   visible="{(graffitiCanvas.activeTool is BrushTool ) &amp;&amp; (graffitiCanvas.activeTool is BitmapTool &amp;&amp; BitmapTool( graffitiCanvas.activeTool ).mode != ToolMode.ERASE )}"
+								   maximum="20"
+								   minimum="0"
+								   stepSize="1"
+								   value="@{brushBlur}"/>
+						<s:Label text="Brush Shapes"
+								 visible="{(graffitiCanvas.activeTool is BrushTool )}"/>
+						<s:DropDownList id="brushShapePulldown"
+										requireSelection="true"
+										change="handleBrushShapePulldown(event)"
+										enabled="{(graffitiCanvas.activeTool is BrushTool )}"
+										visible="{(graffitiCanvas.activeTool is BrushTool )}"
+										dataProvider="{_brushShapes}"
+										x="453"
+										width="102">
+							<s:layout>
+								<s:VerticalLayout requestedRowCount="-1"/>
+							</s:layout>
+						</s:DropDownList>
+					</s:TileGroup>
+				</s:NavigatorContent>
+			</mx:ViewStack>
+			<s:VGroup width="100%"
+					  height="100%"
+					  horizontalAlign="center">
+				<s:BorderContainer id="canvasHolder"
+								   width="512"
+								   height="512"
+								   backgroundColor="#D7CECE">
+				</s:BorderContainer>
+				<s:Label text="(Space Bar to pan image)"/>
+			</s:VGroup>
+		</s:VGroup>
+	</s:HGroup>
+</s:Group>

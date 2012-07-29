@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<core:LayoutContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+					  xmlns:s="library://ns.adobe.com/flex/spark"
+					  xmlns:mx="library://ns.adobe.com/flex/mx"
+					  xmlns:core="mx.core.*"
+					  layout="vertical"
+					  width="100"
+					  height="300">
+
+	<fx:Script>
+		<![CDATA[
+			
+			import air.update.events.UpdateEvent;
+			
+			private var _vector3d : Vector3D = new Vector3D();
+			
+			private var _vX : Number;
+			
+			private var _vY : Number;
+			
+			private var _vZ : Number;
+			
+			protected function update () : void
+			{
+				dispatchEvent( new Event( Event.CHANGE ) );
+			}
+			
+			[Bindable]
+			public function get vX() : Number
+			{
+				return _vX;
+			}
+			
+			public function set vX( value : Number ) : void
+			{
+				_vX = value;
+				update();
+			}
+			
+			[Bindable]
+			public function get vY() : Number
+			{
+				return _vY;
+			}
+			
+			public function set vY( value : Number ) : void
+			{
+				_vY = value;
+				update();
+			}
+			
+			[Bindable]
+			public function get vZ() : Number
+			{
+				return _vZ;
+			}
+			
+			public function set vZ( value : Number ) : void
+			{
+				_vZ = value;
+				update();
+			}
+			
+			[Bindable]
+			public function get vector3d() : Vector3D
+			{
+				_vector3d.x = vX;
+				_vector3d.y = vY;
+				_vector3d.z = vZ;
+				
+				return _vector3d;
+			}
+			
+			public function set vector3d( value : Vector3D ) : void
+			{
+				vX = value.x;
+				vY = value.y;
+				vZ = value.z;
+			}
+
+		]]>
+	</fx:Script>
+
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<s:HGroup x="16"
+			  y="72"
+			  width="86"
+			  height="24"
+			  paddingLeft="5"
+			  paddingRight="5"
+			  verticalAlign="middle">
+		<s:Label text="X:"/>
+		<s:NumericStepper id="xStepper"
+						  minimum="-5000"
+						  maximum="5000"
+						  value="@{vX}"
+						  width="61"/>
+	</s:HGroup>
+	<s:HGroup width="86"
+			  height="24"
+			  paddingLeft="5"
+			  paddingRight="5"
+			  verticalAlign="middle">
+		<s:Label text="Y:"/>
+		<s:NumericStepper id="yStepper"
+						  minimum="-5000"
+						  maximum="5000"
+						  value="@{vY}"
+						  width="61"/>
+	</s:HGroup>
+	<s:HGroup width="86"
+			  height="24"
+			  paddingLeft="5"
+			  paddingRight="5"
+			  verticalAlign="middle">
+		<s:Label text="Z:"/>
+		<s:NumericStepper id="zStepper"
+						  minimum="-5000"
+						  maximum="5000"
+						  value="@{vZ}"
+						  width="61"/>
+	</s:HGroup>
+</core:LayoutContainer>

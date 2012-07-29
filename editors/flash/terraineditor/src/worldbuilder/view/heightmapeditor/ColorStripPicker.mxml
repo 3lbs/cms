@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+				   xmlns:s="library://ns.adobe.com/flex/spark"
+				   xmlns:mx="library://ns.adobe.com/flex/mx"
+				   width="53" height="260" borderWeight="2" dropShadowVisible="false"
+				   skinClass="spark.skins.spark.BorderContainerSkin">
+	<s:layout>
+		<s:VerticalLayout/>
+	</s:layout>
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.events.ColorPickerEvent;
+
+			[Bindable]
+			public var selectedColor:uint;
+			
+			protected function imageHolder_mouseDownHandler(event:MouseEvent):void
+			{
+				selectedColor= imageHolder.bitmapData.getPixel( event.localX, event.localY );
+				
+				trace(selectedColor.toString(16));
+				
+				dispatchEvent( new ColorPickerEvent( ColorPickerEvent.CHANGE, false, false, -1, selectedColor ) );
+			}
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<s:Image id="colorSwab" width="50" height="50">
+		
+	</s:Image>
+	
+	<s:Image id="imageHolder" source="@Embed('../assets/stripblackandwhite.png')" mouseDown="imageHolder_mouseDownHandler(event)">
+		
+	</s:Image>
+</s:BorderContainer>

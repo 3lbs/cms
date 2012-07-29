@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Window xmlns:fx="http://ns.adobe.com/mxml/2009"
+		  xmlns:s="library://ns.adobe.com/flex/spark"
+		  xmlns:mx="library://ns.adobe.com/flex/mx"
+		  xmlns:heightmapeditor="worldbuilder.view.heightmapeditor.*"
+		  xmlns:ns1="*"
+		  width="655"
+		  height="660"
+		  creationPolicy="all"
+		  renderMode="cpu">
+	<s:layout>
+		<s:VerticalLayout paddingLeft="8"
+						  paddingRight="8"/>
+	</s:layout>
+
+	<s:menu>
+		<mx:FlexNativeMenu dataProvider="{myMenuData}"
+						   labelField="@label"
+						   itemClick="flexnativemenu1_itemClickHandler(event)"
+						   showRoot="false"/>
+	</s:menu>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+		<fx:XML format="e4x"
+				id="myMenuData">
+			<root>
+				<menuitem label="File">
+					<menuitem label="New"/>
+					<menuitem label="Open"/>
+					<menuitem type="separator"/>
+					<menuitem label="Export to PNG"/>
+					<menuitem label="Export to JPG"/>
+					<menuitem type="separator"/>
+					<menuitem label="Close"/>
+				</menuitem>
+			</root>
+		</fx:XML>
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import com.adobe.images.PNGEncoder;
+			
+			import editorlibrary.air.fileformats.BitmapDataToJPEGWithBrowse;
+			import editorlibrary.air.fileformats.BitmapDataToPNGWithBrowser;
+			import editorlibrary.air.fileformats.IFileFormat;
+			import editorlibrary.core.loader.ImageLoader;
+			
+			import mx.controls.Alert;
+			import mx.core.FlexGlobals;
+			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
+			import mx.events.FlexNativeMenuEvent;
+			import mx.graphics.codec.JPEGEncoder;
+
+			private var _fileRef : FileReference;
+
+			private var imageLoader : ImageLoader;
+
+			private var saveBitmapToFile : IFileFormat;
+
+			public function appComplete() : void
+			{
+			}
+
+			public function destroy() : void
+			{
+				if ( imageLoader )
+				{
+					imageLoader.destroy();
+					imageLoader = null;
+				}
+
+			}
+
+			protected function flexnativemenu1_itemClickHandler( event : FlexNativeMenuEvent ) : void
+			{
+				switch ( event.label )
+				{
+					case "Open":
+					{
+						handleBrowseForOpen();
+						break;
+					}
+					case "New":
+					{
+						createNewFile();
+						break;
+					}
+					case "Close":
+					{
+						editorView.destroy();
+						this.close();
+						break;
+					}
+					case "Export to PNG":
+					{
+						saveBitmapToFile = new BitmapDataToPNGWithBrowser();
+						saveBitmapToFile.saveBitmapData( editorView.graffitiCanvas.drawing());
+						break;
+					}
+					case "Export to JPG":
+					{
+						saveBitmapToFile = new BitmapDataToJPEGWithBrowse();
+						saveBitmapToFile.saveBitmapData( editorView.graffitiCanvas.drawing());
+						break;
+					}
+				}
+			}
+
+			private function handleBrowseForOpen() : void
+			{
+				var file : File = new File();
+				file.addEventListener( Event.SELECT, handleOpenFile );
+
+				var txtFilter : FileFilter = new FileFilter( "PNG, JPEG", "*.png;*.jpg;*.jpeg;" );
+				file.browseForOpen( "Open png", [ txtFilter ]);
+			}
+
+			private function handleOpenFile( event : Event ) : void
+			{
+				var file : File = File( event.currentTarget );
+
+				imageLoader = new ImageLoader();
+				imageLoader.addEventListener( Event.COMPLETE, handleImageloaded );
+				imageLoader.load( file.nativePath );
+			}
+
+			protected function handleImageloaded( event : Event ) : void
+			{
+				var imageBitmapData : BitmapData = imageLoader.bitmapData.clone();
+
+				imageLoader.destroy();
+				imageLoader = null;
+
+				editorView.terrainMap = imageBitmapData;
+			}
+
+			private function createNewFile() : void
+			{
+				Alert.show( "This creates a new terrain map.  You will lose all changes", "Alert", Alert.YES | Alert.CANCEL, this, alertListener, null, Alert.OK );
+			}
+
+			private function alertListener( event : CloseEvent ) : void
+			{
+				if ( event.detail == Alert.YES )
+				{
+					var bmd : BitmapData = new BitmapData( editorView.graffitiCanvas.canvasWidth, editorView.graffitiCanvas.canvasWidth, false, editorView.graffitiCanvas.backgroundColor );
+					editorView.terrainMap = bmd;
+				}
+			}
+
+			[Bindable]
+			public function set editorBitmapData( value : BitmapData ) : void
+			{
+				editorView.terrainMap = value;
+			}
+
+			public function get editorBitmapData() : BitmapData
+			{
+				return editorView.terrainMap;
+			}
+		]]>
+	</fx:Script>
+	<heightmapeditor:TerrianMapEditorGroup id="editorView">
+
+	</heightmapeditor:TerrianMapEditorGroup>
+
+</s:Window>

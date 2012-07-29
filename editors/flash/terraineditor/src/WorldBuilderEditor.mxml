@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:WindowedApplication width="1200"
+					   height="750"
+					   minWidth="1200"
+					   minHeight="600"
+					   frameRate="60"
+					   backgroundAlpha="0"
+					   creationPolicy="all"
+					   applicationComplete="appComplete()"
+					   xmlns:fx="http://ns.adobe.com/mxml/2009"
+					   xmlns:s="library://ns.adobe.com/flex/spark"
+					   xmlns:mx="library://ns.adobe.com/flex/mx"
+					   xmlns:mxml="robotlegs.bender.mxml.*"
+					   xmlns:mvcs="robotlegs.bender.bundles.mvcs.*"
+					   xmlns:totembundle="totem.patterns.mvc.totembundle.*"
+					   xmlns:editorlibrary="cms.editorlibrary.*"
+					   xmlns:worldbuilder="worldbuilder.*"
+					   xmlns:editorlibrary1="editorlibrary.*"
+					   xmlns:view="editorlibrary.editors3d.mvc.view.*"
+					   xmlns:ui="totem3deditor.core.view.ui.*"
+					   xmlns:view1="worldbuilder.view.*"
+					   xmlns:ns="http://www.yahoo.com/astra/2006/mxml">
+	<s:layout>
+		<s:VerticalLayout horizontalAlign="center"
+						  paddingBottom="10"
+						  paddingLeft="10"
+						  paddingRight="10"
+						  paddingTop="10"/>
+	</s:layout>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+		<mxml:ContextBuilderTag>
+			<mvcs:MVCSBundle/>
+			<totembundle:TotemBundle/>
+			<editorlibrary1:EditorFrameworkAppConfig/>
+			<worldbuilder:WorldBuilderConfig/>
+		</mxml:ContextBuilderTag>
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import editorlibrary.air.controllers.events.ApplicationEvent;
+
+			import worldbuilder.view.ApplicationNativeMenu;
+
+			public function appComplete() : void
+			{
+
+				stage.nativeWindow.visible = true;
+
+
+				var item1 : NativeMenuItem;
+
+				if ( NativeApplication.supportsMenu )
+				{
+					var nativeMenu : NativeMenu = new NativeMenu();
+					item1 = new NativeMenuItem( "File" );
+					var item2 : NativeMenuItem = new NativeMenuItem( "Window" );
+					nativeMenu.addItem( item1 );
+					nativeMenu.addItem( item2 );
+
+					var menuItem : NativeMenuItem = new NativeMenuItem( "My App Menu" );
+					menuItem.submenu = nativeMenu;
+					NativeApplication.nativeApplication.menu.addItem( menuItem );
+						//item1.addEventListener ( Event.SELECT, onItemSelect );
+				}
+				else if ( NativeWindow.supportsMenu )
+				{
+					var menu : ApplicationNativeMenu = new ApplicationNativeMenu();
+					nativeWindow.menu = menu;
+
+					menu.init( this.stage );
+				}
+
+				//dispatchEvent( new ApplicationEvent( ApplicationEvent.MENU_COMPLETE ));
+				dispatchEvent( new ApplicationEvent( ApplicationEvent.APPLICATION_STARTUP ));
+			}
+		]]>
+	</fx:Script>
+	<s:HGroup width="100%"
+			  height="100%">
+		<mx:TabNavigator width="321"
+						 height="100%"
+						 paddingBottom="5"
+						 paddingLeft="5"
+						 paddingRight="5"
+						 paddingTop="5">
+			<view1:ProjectContentView label="Project">
+
+			</view1:ProjectContentView>
+			<view1:SceneNavigatorContent width="100%"
+										 height=" 100%"
+										 label="Lights">
+			</view1:SceneNavigatorContent>
+			<view1:CameraNavigatorContent>
+				
+			</view1:CameraNavigatorContent>
+		</mx:TabNavigator>
+		<s:VGroup width="100%"
+				  height="100%">
+			<ns:DropDownColorPicker pickerRenderer="com.yahoo.astra.mx.controls.colorPickerClasses.AdvancedColorPickerDropDown"/>
+
+			<mx:TabNavigator width="100%"
+							 height="211"
+							 paddingLeft="5"
+							 paddingRight="5">
+				<view1:TerrianContentView width="100%"
+										  height="100%"
+										  label="Terrian">
+				</view1:TerrianContentView>
+				<view1:TerrainMaterialContent label="Material">
+
+				</view1:TerrainMaterialContent>
+				<view1:SkyContentView label="Sky Box">
+				</view1:SkyContentView>
+				<s:NavigatorContent width="100%"
+									height="100%"
+									label="Water">
+				</s:NavigatorContent>
+				<s:NavigatorContent width="100%"
+									height="100%"
+									label="Buildings">
+				</s:NavigatorContent>
+			</mx:TabNavigator>
+			<view1:Panel3DContent/>
+
+			<view1:Control3DContent/>
+		</s:VGroup>
+	</s:HGroup>
+
+
+</s:WindowedApplication>

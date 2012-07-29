@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Label xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx">
+	<fx:Script>
+		<![CDATA[
+			import totem3deditor.core.model.ProjectControllerModel;
+			import totem3deditor.core.model.vo.modelanimation.ProjectAnimationsVO;
+			import totem3deditor.core.model.vo.modelanimation.ProjectAnimationsVO;
+
+			[Bindable]
+			public var projectController : ProjectControllerModel;
+			//<fx:String = "{'Current Model: ' + projectControllerModel.currentProject.modelMeshVO.meshFile.name + '\n Current Animation: ' + ProjectAnimationsVO.currentAnimation + '\n Current Texture: ' + ProjectMaterialsVO.currentMaterial }" />
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+
+</s:Label>
