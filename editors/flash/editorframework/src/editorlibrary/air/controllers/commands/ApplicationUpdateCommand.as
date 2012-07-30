@@ -13,6 +13,8 @@ package editorlibrary.air.controllers.commands
 	
 	public class ApplicationUpdateCommand extends AsyncCommand
 	{
+		[Inject]
+		public var updateURL : String;
 		
 		protected var appUpdater : ApplicationUpdaterUI = new ApplicationUpdaterUI(); // Used for auto-updat
 		
@@ -26,7 +28,7 @@ package editorlibrary.air.controllers.commands
 			super.execute();
 			
 			
-			appUpdater.updateURL = "http://3lbs.s3.amazonaws.com/cms/model3dviewer/update.xml";
+			appUpdater.updateURL = updateURL;
 			appUpdater.addEventListener( UpdateEvent.INITIALIZED, onUpdate );
 			appUpdater.addEventListener( ErrorEvent.ERROR, onUpdaterError );
 			appUpdater.addEventListener( StatusUpdateErrorEvent.UPDATE_ERROR, onUpdateStatusError );

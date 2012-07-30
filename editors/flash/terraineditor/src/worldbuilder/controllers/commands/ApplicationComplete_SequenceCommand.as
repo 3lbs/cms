@@ -16,8 +16,7 @@ package worldbuilder.controllers.commands
 		override public function execute() : void
 		{
 			addCommand( MenuCompleteCommand );
-			
-			addCommand( ApplicationUpdateCommand );
+			addCommand( ApplicationUpdateCommand, "http://3lbs.s3.amazonaws.com/cms/worldbuilder/update.xml", String );
 			addCommand( AppPreferenceInitCommand );
 			
 			super.execute();

@@ -11,6 +11,7 @@ package totem3deditor.core.controllers.commands.texturecommands
 	
 	import totem.core.TotemEntity;
 	
+	import totem3d.actors.components.ITextureMaterialComponent;
 	import totem3d.actors.components.LightComponent;
 	import totem3d.actors.components.TextureMaterialComponent;
 	
@@ -52,6 +53,9 @@ package totem3deditor.core.controllers.commands.texturecommands
 			{
 				var lightComponent : LightComponent = entity.getComponent( LightComponent );
 				lightComponent.useLights = materialPresenter.useLight;
+				
+				var materialComponent : TextureMaterialComponent = entity.getComponent( ITextureMaterialComponent );
+				materialComponent.textureMaterial = materialPresenter.material;
 			}
 			
 			var material : TextureMaterial = materialPresenter.editorMatrial as TextureMaterial;

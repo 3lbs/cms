@@ -1,16 +1,16 @@
 package worldbuilder.model
 {
-	import com.totem.terrain3d.framework.actors.EnviromentGroup;
-	import com.totem.terrain3d.framework.actors.WorldGroup;
-	import com.totem.terrain3d.framework.actors.terrain.TerrainMeshComponent;
-	import com.totem.terrain3d.framework.builder.EnviromentBuilder;
-	import com.totem.terrain3d.framework.builder.EnviromentDirector;
-	import com.totem.terrain3d.framework.builder.WorldBuilder;
-	import com.totem.terrain3d.framework.builder.WorldDirector;
-	import com.totem.terrain3d.framework.systems.PhysicsSystem;
-	
 	import gorilla.resource.IResourceManager;
 	import gorilla.resource.ResourceManager;
+	
+	import terrain.actors.EnviromentGroup;
+	import terrain.actors.WorldGroup;
+	import terrain.actors.terrain.TerrainMeshComponent;
+	import terrain.builder.EnviromentBuilder;
+	import terrain.builder.EnviromentDirector;
+	import terrain.builder.WorldBuilder;
+	import terrain.builder.WorldDirector;
+	import terrain.systems.PhysicsSystem;
 	
 	import totem.core.TotemEntity;
 	

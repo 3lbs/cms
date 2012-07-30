@@ -18,7 +18,7 @@ package  totem3deditor.core.controllers.commands
 			atomic = false;
 			
 			addCommand( MenuCompleteCommand );
-			addCommand( ApplicationUpdateCommand );
+			addCommand( ApplicationUpdateCommand, "http://3lbs.s3.amazonaws.com/cms/model3dviewer/update.xml", String );
 			addCommand( AppPreferenceInitCommand );
 			
 			super.execute();

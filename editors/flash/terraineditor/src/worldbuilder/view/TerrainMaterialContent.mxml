@@ -3,24 +3,158 @@
 					xmlns:s="library://ns.adobe.com/flex/spark"
 					xmlns:mx="library://ns.adobe.com/flex/mx"
 					width="100%"
-					height="300">
+					height="500">
 	<s:layout>
 		<s:HorizontalLayout/>
 	</s:layout>
+	<fx:Script>
+		<![CDATA[
+			import editorlibrary.flex.windows.TextureDisplayWindow;
+			
+			import mx.events.CloseEvent;
+			import mx.managers.PopUpManager;
+			
+			import worldbuilder.presenters.TerrainMaterialPresenter;
+			
+			[Bindable]
+			public var materialPresenter : TerrainMaterialPresenter;
+			
+			private var windowDisplay : TextureDisplayWindow;
+			
+			protected function viewTexture( url : String ) : void
+			{
+				if ( url && url != "" && url != "none" )
+				{
+					windowDisplay = PopUpManager.createPopUp( DisplayObject( this.parentApplication ), TextureDisplayWindow, true ) as TextureDisplayWindow;
+					
+					windowDisplay.addEventListener( Event.CLOSE, handleRemoveWindow, false, 0, true );
+					
+					PopUpManager.centerPopUp( windowDisplay );
+					
+					windowDisplay.loadImage( url );
+				}
+			}
+			
+			protected function handleRemoveWindow( event : CloseEvent ) : void
+			{
+				PopUpManager.removePopUp( windowDisplay );
+				windowDisplay = null;
+			}
+		]]>
+	</fx:Script>
+
 	<fx:Declarations>
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
 	</fx:Declarations>
-	<s:VGroup width="584"
+	<s:VGroup width="100%"
 			  height="100%">
-		<s:Label text="Terrain Method"/>
-		<s:HGroup width="100%"
-				  height="27">
-			<s:Button label="Button"
-					  id="openMaterial"/>
-			<s:Button label="Button"/>
-		</s:HGroup>
-		<s:List width="579"
-				height="100%">
-		</s:List>
+		<s:VGroup width="100%"
+				  height="100%">
+			<s:Label text="Name"/>
+			<s:TextInput width="248"/>
+			<s:HGroup width="100%"
+					  height="27"
+					  verticalAlign="middle">
+				<s:Label text="Blend Texture"/>
+				<s:DropDownList width="182"
+								id="normalMapDropDown0"
+								labelField="name"
+								selectedIndex="0"
+								selectedItem="@{materialPresenter.normalTexture}"
+								dataProvider="{ materialPresenter.textureList }">
+				</s:DropDownList>
+				<s:Button id="viewNormalMapButton0"
+						  width="30"
+						  click="viewTexture(normalMapDropDown.selectedItem.url)"
+						  label="..."/>
+			</s:HGroup>
+			<mx:HRule width="100%"/>
+			<s:HGroup width="100%"
+					  height="27"
+					  verticalAlign="middle">
+				<s:Label text="Ambient"/>
+				<s:NumericStepper id="ambienStrengthNumericStepper"
+								  minimum="0"
+								  maximum="255"
+								  value="@{materialPresenter.ambientStrength}"/>
+				<s:Label y="7"
+						 height="14"
+						 text="Ambient Color"/>
+				<mx:ColorPicker id="ambientcolorPiker"
+								selectedColor="@{materialPresenter.ambientColor}"/>
+			</s:HGroup>
+			<mx:HRule width="100%"/>
+			<s:HGroup width="100%"
+					  height="27"
+					  verticalAlign="middle">
+				<s:Label text="Specular"/>
+				<s:NumericStepper minimum="0"
+								  maximum="255"
+								  value="@{materialPresenter.specularStrength}"/>
+				<s:Label height="14"
+						 text="Specular Color"/>
+				<mx:ColorPicker id="specularColorPicker"
+								selectedColor="@{materialPresenter.specularColor}"/>
+			</s:HGroup>
+			<s:HGroup width="100%"
+					  height="27"
+					  verticalAlign="middle">
+				<s:Label text="Specular Map"/>
+				<s:DropDownList id="specularMapDropDown"
+								width="182"
+								labelField="name"
+								selectedIndex="0"
+								selectedItem="@{materialPresenter.specularTexture}"
+								dataProvider="{ materialPresenter.textureList }">
+				</s:DropDownList>
+				<s:Button id="viewSpecularMapButton"
+						  width="30"
+						  click="viewTexture(specularMapDropDown.selectedItem.url)"
+						  label="..."/>
+			</s:HGroup>
+			<mx:HRule width="100%"/>
+			<s:HGroup width="100%"
+					  height="27"
+					  verticalAlign="middle">
+				<s:Label text="Gloss"/>
+				<s:NumericStepper id="glossStrengthNumberStepper"
+								  minimum="0"
+								  maximum="255"
+								  value="@{materialPresenter.glossStrength}"/>
+			</s:HGroup>
+			<mx:HRule width="100%"/>
+			<s:HGroup width="100%"
+					  height="27"
+					  verticalAlign="middle">
+				<s:Label text="Normal Map"/>
+				<s:DropDownList width="182"
+								id="normalMapDropDown"
+								labelField="name"
+								selectedIndex="0"
+								selectedItem="@{materialPresenter.normalTexture}"
+								dataProvider="{ materialPresenter.textureList }">
+				</s:DropDownList>
+				<s:Button id="viewNormalMapButton"
+						  width="30"
+						  click="viewTexture(normalMapDropDown.selectedItem.url)"
+						  label="..."/>
+			</s:HGroup>
+		</s:VGroup>
+		<s:VGroup width="100%" height="100%">
+			<s:Label text="Terrain Splat Method"/>
+			<s:HGroup width="100%"
+					  height="27">
+				<s:Button id="addLayerButton"
+						  label="Add Layer"/>
+				<s:Spacer width="100%" height="10"/>
+				<s:Button label="Remove Layer"
+						  id="openMaterial"/>
+			</s:HGroup>
+			<s:List width="100%"
+					height="100%"
+					itemRenderer="worldbuilder.view.itemrenderer.SplatLayerItemRenderer">
+			</s:List>
+		</s:VGroup>
+		<mx:HRule width="100%"/>
 	</s:VGroup>
 </s:NavigatorContent>

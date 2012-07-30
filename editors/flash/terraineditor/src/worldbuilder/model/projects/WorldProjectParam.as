@@ -1,7 +1,8 @@
 package worldbuilder.model.projects
 {
-	import com.totem.terrain3d.framework.params.EnviromentParam;
-	import com.totem.terrain3d.framework.params.WorldParam;
+	import terrain.params.EnviromentParam;
+	import terrain.params.WorldParam;
+	
 
 	public class WorldProjectParam
 	{
@@ -20,3 +21,4 @@ package worldbuilder.model.projects
 	}
 }
 
+	

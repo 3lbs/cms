@@ -61,7 +61,7 @@
 				}
 				else if ( NativeWindow.supportsMenu )
 				{
-					var menu : ApplicationNativeMenu = new ApplicationNativeMenu();R
+					var menu : ApplicationNativeMenu = new ApplicationNativeMenu();
 					nativeWindow.menu = menu;
 
 					menu.init( this.stage );
@@ -76,7 +76,7 @@
 
 	<view1:MaterialViewContainer id="materialViewComponent"
 								 x="-200"
-								 y="-200"R
+								 y="-200"
 								 width="128"
 								 height="128"
 								 backgroundAlpha="0"/>

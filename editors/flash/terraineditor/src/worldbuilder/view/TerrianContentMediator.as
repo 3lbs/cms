@@ -40,7 +40,7 @@ package worldbuilder.view
 
 		override public function initialize() : void
 		{
-			view.launchHeightMapEditor.addEventListener( MouseEvent.CLICK, handleOpenHeightMapWindow );
+			//view.launchHeightMapEditor.addEventListener( MouseEvent.CLICK, handleOpenHeightMapWindow );
 			view.presenter = terrainPresenter;
 			
 			terrainPresenter.addEventListener( TerrainEditEvent.UPDATE_HEIGHT_MAP, handleUpdateTerrain );

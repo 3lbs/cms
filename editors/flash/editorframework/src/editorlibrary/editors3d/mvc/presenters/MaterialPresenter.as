@@ -11,8 +11,6 @@ package editorlibrary.editors3d.mvc.presenters
 	import flash.display.BitmapData;
 	import flash.utils.getDefinitionByName;
 	
-	import flight.list.ArrayProxy;
-	
 	import mx.collections.ArrayCollection;
 	
 	import totem.patterns.mvc.BasePresenter;

@@ -87,12 +87,18 @@
 			<view1:ProjectContentView label="Project">
 
 			</view1:ProjectContentView>
+			<view1:TerrianContentView width="100%"
+									  height="100%"
+									  label="Mesh"/>
+			<view1:TerrainMaterialContent label="Terrain Material"
+										  width="100%"
+										  height="100%"/>
 			<view1:SceneNavigatorContent width="100%"
 										 height=" 100%"
 										 label="Lights">
 			</view1:SceneNavigatorContent>
 			<view1:CameraNavigatorContent>
-				
+
 			</view1:CameraNavigatorContent>
 		</mx:TabNavigator>
 		<s:VGroup width="100%"
@@ -103,13 +109,6 @@
 							 height="211"
 							 paddingLeft="5"
 							 paddingRight="5">
-				<view1:TerrianContentView width="100%"
-										  height="100%"
-										  label="Terrian">
-				</view1:TerrianContentView>
-				<view1:TerrainMaterialContent label="Material">
-
-				</view1:TerrainMaterialContent>
 				<view1:SkyContentView label="Sky Box">
 				</view1:SkyContentView>
 				<s:NavigatorContent width="100%"

@@ -3,13 +3,13 @@ package worldbuilder.model.terrain
 	import away3d.materials.TextureMaterial;
 	import away3d.materials.lightpickers.StaticLightPicker;
 	
-	import com.totem.terrain3d.framework.actors.terrain.TerrainMaterialComponent;
-	import com.totem.terrain3d.framework.actors.terrain.TerrainMeshComponent;
-	import com.totem.terrain3d.framework.params.TerrainParam;
-	
 	import editorlibrary.core.filesystem.BitmapDataFileMonitor;
 	
 	import org.casalib.events.RemovableEventDispatcher;
+	
+	import terrain.actors.terrain.TerrainMaterialComponent;
+	import terrain.actors.terrain.TerrainMeshComponent;
+	import terrain.params.TerrainParam;
 	
 	import totem.core.TotemEntity;
 	
