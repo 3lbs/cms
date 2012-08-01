@@ -8,7 +8,7 @@ package totem3deditor.core.model.vo.project
 	import flash.filesystem.File;
 
 	import totem.core.TotemEntity;
-	import totem.monitors.CompleteSimpleMonitor;
+	import totem.monitors.SimpleEventMonitor;
 
 	import totem3d.actors.components.Mesh3DComponent;
 	import totem3d.actors.components.TextureMaterialComponent;
@@ -36,7 +36,7 @@ package totem3deditor.core.model.vo.project
 
 		private var _actionSpeed : Number;
 
-		private var loadMonitor : CompleteSimpleMonitor;
+		private var loadMonitor : SimpleEventMonitor;
 
 		public function Project()
 		{
@@ -70,7 +70,7 @@ package totem3deditor.core.model.vo.project
 
 			_projectData = param;
 
-			loadMonitor = new CompleteSimpleMonitor();
+			loadMonitor = new SimpleEventMonitor();
 			loadMonitor.addEventListener( Event.COMPLETE, handleProjectComplete );
 
 			// model3dPresenter =>

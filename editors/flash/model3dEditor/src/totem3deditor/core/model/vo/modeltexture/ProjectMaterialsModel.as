@@ -21,7 +21,7 @@ package totem3deditor.core.model.vo.modeltexture
 	
 	import org.casalib.events.RemovableEventDispatcher;
 	
-	import totem.monitors.CompleteSimpleMonitor;
+	import totem.monitors.SimpleEventMonitor;
 	
 	import totem3d.actors.components.TextureMaterialComponent;
 	import totem3d.core.dto.MaterialParam;
@@ -49,7 +49,7 @@ package totem3deditor.core.model.vo.modeltexture
 		 */
 		public var textureDataList : Vector.<MaterialParam>;
 		
-		private var loadMonitor : CompleteSimpleMonitor;
+		private var loadMonitor : SimpleEventMonitor;
 		
 		private var materialComponent : TextureMaterialComponent;
 		
@@ -105,7 +105,7 @@ package totem3deditor.core.model.vo.modeltexture
 			
 			var file : File;
 			
-			loadMonitor = new CompleteSimpleMonitor ();
+			loadMonitor = new SimpleEventMonitor ();
 			loadMonitor.addEventListener ( Event.COMPLETE, handleTexturesLoaded );
 			
 			for each ( file in textures )

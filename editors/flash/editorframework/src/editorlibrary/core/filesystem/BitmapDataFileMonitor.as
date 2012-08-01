@@ -39,12 +39,12 @@ package editorlibrary.core.filesystem
 		private function loadBitmapData() : void
 		{
 			// this is not great and maybe not a perment solution
-			if ( url )
+			if ( file.exists )
 			{
 				loader = new Loader();
 				loader.contentLoaderInfo.addEventListener( Event.COMPLETE, loadComplete );
 				loader.contentLoaderInfo.addEventListener( IOErrorEvent.IO_ERROR, loadFailed );
-				loader.load( new URLRequest( url ));
+				loader.loadBytes( file.data );
 			}
 		}
 

@@ -21,9 +21,9 @@ package worldbuilder.model.projects
 	public class WorldProjectProxy extends RemovableEventDispatcher
 	{
 		
-		public static const FILE_JSON : String = ".json";
+		public static const FILE_JSON : String = ".wpf";
 		
-		public static const PROJECT_EXT : String = "json";
+		public static const PROJECT_EXT : String = "wpf";
 		
 		public static const DIRECTORY_ANIMATION : String = "animation";
 		
@@ -96,14 +96,19 @@ package worldbuilder.model.projects
 			var heightMaplDir : File = result.resolvePath( DIRECTORY_HEIGHT_MAP );
 			heightMaplDir.createDirectory();
 			
+			newProject.heightMapDir = heightMaplDir;
+			
 			// animation diretory 
 			var skyBoxDir : File = result.resolvePath( DIRECTORY_SKY_BOX );
 			skyBoxDir.createDirectory();
+			
+			newProject.skyBoxDir = skyBoxDir;
 			
 			// texture directory
 			var terrainTextureDir : File = result.resolvePath( DIRECTORY_TERRAIN_TEXTURE );
 			terrainTextureDir.createDirectory();
 
+			newProject.terrainTextureDir = terrainTextureDir;
 			
 			//
 			var fileName : String = projectItem.title + FILE_JSON;

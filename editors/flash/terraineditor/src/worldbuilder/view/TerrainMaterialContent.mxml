@@ -9,6 +9,9 @@
 	</s:layout>
 	<fx:Script>
 		<![CDATA[
+			
+			//http://flexformatter.googlecode.com/svn/trunk/FlexFormatter/FlexPrettyPrintCommandUpdateSite/
+			
 			import editorlibrary.flex.windows.TextureDisplayWindow;
 			
 			import mx.events.CloseEvent;
